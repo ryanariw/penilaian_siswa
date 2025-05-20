@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Cache;
 
 use App\Models\Siswa;
 use App\Models\Guru;
@@ -18,32 +19,64 @@ class AuthController extends Controller
 {
     public function home()
     {
-        // Hitung jumlah data
-        $jumlahSiswa = Siswa::count();
-        $jumlahGuru = Guru::count();
-        $jumlahKelas = Kelas::count();
-        $jumlahMapel = Mapel::count();
+        $user = Auth::user();
 
-        // Ambil 5 nilai terbaru
-        $nilaiTerbaru = Nilai::with(['siswa', 'mapel'])->orderBy('id', 'desc')->limit(5)->get();
+        if ($user->role === 'siswa') {
+            // Data khusus siswa
+            $siswa = $user->siswa;
 
-        // Siapkan data distribusi nilai akhir dalam rentang 0-100 dengan interval 10
-        $distribusiNilai = [];
-        for ($i = 0; $i < 10; $i++) {
-            $min = $i * 10;
-            $max = $min + 9;
-            $count = Nilai::whereBetween('nilai_akhir', [$min, $max])->count();
-            $distribusiNilai[] = $count;
+            // Ambil nilai siswa tersebut
+            $nilaiSiswa = Nilai::with('mapel')
+                ->where('siswa_id', $siswa->id)
+                ->orderBy('id', 'desc')
+                ->limit(5)
+                ->get();
+
+            return view('dashboard.home', [
+                'isSiswa' => true,
+                'nilaiSiswa' => $nilaiSiswa,
+                'siswa' => $siswa,
+            ]);
+        } else {
+            // Data umum untuk guru, admin, dll
+            $jumlahSiswa = Cache::remember('jumlahSiswa', 300, function () {
+                return Siswa::count();
+            });
+            $jumlahGuru = Cache::remember('jumlahGuru', 300, function () {
+                return Guru::count();
+            });
+            $jumlahKelas = Cache::remember('jumlahKelas', 300, function () {
+                return Kelas::count();
+            });
+            $jumlahMapel = Cache::remember('jumlahMapel', 300, function () {
+                return Mapel::count();
+            });
+
+            // Ambil 5 nilai terbaru
+            $nilaiTerbaru = Nilai::with(['siswa', 'mapel'])->orderBy('id', 'desc')->limit(5)->get();
+
+            // Optimasi query distribusi nilai akhir dengan single query
+            $distribusiNilaiRaw = Cache::remember('distribusiNilai', 300, function () {
+                return Nilai::selectRaw('FLOOR(nilai_akhir / 10) as range_group, COUNT(*) as count')
+                    ->groupBy('range_group')
+                    ->pluck('count', 'range_group')
+                    ->toArray();
+            });
+
+            $distribusiNilai = [];
+            for ($i = 0; $i < 10; $i++) {
+                $distribusiNilai[] = $distribusiNilaiRaw[$i] ?? 0;
+            }
+
+            return view('dashboard.home', compact(
+                'jumlahSiswa',
+                'jumlahGuru',
+                'jumlahKelas',
+                'jumlahMapel',
+                'nilaiTerbaru',
+                'distribusiNilai'
+            ));
         }
-
-        return view('dashboard.home', compact(
-            'jumlahSiswa',
-            'jumlahGuru',
-            'jumlahKelas',
-            'jumlahMapel',
-            'nilaiTerbaru',
-            'distribusiNilai'
-        ));
     }
 
     // Show login form

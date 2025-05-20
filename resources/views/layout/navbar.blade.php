@@ -85,5 +85,12 @@
    <!-- Make sure this is included before your main.js -->
   <!-- Bootstrap JS -->
 <script src="{{ asset('assets/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('assets/assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'))
+    dropdownElementList.map(function (dropdownToggleEl) {
+        return new bootstrap.Dropdown(dropdownToggleEl)
+    })
+});
+</script>
 
