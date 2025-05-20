@@ -1,0 +1,127 @@
+@extends('layout.master')
+
+@section('content')
+<div class="container mt-4">
+    <h1 class="mb-4">Dashboard</h1>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Siswa</h5>
+                    <p class="card-text display-4">{{ $jumlahSiswa }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Guru</h5>
+                    <p class="card-text display-4">{{ $jumlahGuru }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Kelas</h5>
+                    <p class="card-text display-4">{{ $jumlahKelas }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Mata Pelajaran</h5>
+                    <p class="card-text display-4">{{ $jumlahMapel }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Grades Table -->
+    <div class="card mb-4">
+        <div class="card-header">
+            Nilai Terbaru
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Siswa</th>
+                        <th>Mata Pelajaran</th>
+                        <th>Nilai Akhir</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($nilaiTerbaru as $nilai)
+                    <tr>
+                        <td>{{ $nilai->siswa->nama ?? 'N/A' }}</td>
+                        <td>{{ $nilai->mapel->nama_mapel ?? 'N/A' }}</td>
+                        <td>{{ $nilai->nilai_akhir }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Grade Distribution Chart -->
+    <div class="card mb-4">
+        <div class="card-header">
+            Distribusi Nilai Akhir
+        </div>
+        <div class="card-body">
+            <canvas id="gradeChart" width="400" height="150"></canvas>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="mb-4">
+        <h4>Quick Links</h4>
+        <a href="{{ url('/siswa') }}" class="btn btn-primary mr-2">Daftar Siswa</a>
+        <a href="{{ url('/penilaian/nilai') }}" class="btn btn-success mr-2">Input Nilai</a>
+        <a href="{{ url('/laporan') }}" class="btn btn-info">Laporan</a>
+    </div>
+
+    <!-- Announcements -->
+    <div class="card">
+        <div class="card-header">
+            Pengumuman
+        </div>
+        <div class="card-body">
+            <p>Belum ada pengumuman terbaru.</p>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('gradeChart').getContext('2d');
+    const gradeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90-100'],
+            datasets: [{
+                label: 'Jumlah Nilai',
+                data: @json($distribusiNilai),
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    precision: 0
+                }
+            }
+        }
+    });
+</script>
+@endsection
