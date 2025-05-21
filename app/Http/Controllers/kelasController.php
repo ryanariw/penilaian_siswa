@@ -37,14 +37,19 @@ class kelasController extends Controller
         return redirect()->route('penilaian.kelas')->with('success', 'Kelas berhasil ditambahkan.');
     }
 
-    public function edit(Kelas $kelas)
-    {
-        $guruList = Guru::all();
-        return view('penilaian.kelasedit', compact('kelas', 'guruList'));
-    }
+   
+       public function edit($id)
+{
+    $kelas = Kelas::findOrFail($id);
+    $guruList = Guru::all();
+    return view('penilaian.kelasedit', compact('kelas', 'guruList'));
+}
 
-    public function update(Request $request, Kelas $kelas)
+
+
+    public function update(Request $request, Kelas $kelas , $id)
     {
+        $kelas = Kelas::findOrFail($id);
         $request->validate([
             'guru_id' => 'required|exists:guru,id',
             'kode_kelas' => 'required|unique:kelas,kode_kelas,' . $kelas->id,

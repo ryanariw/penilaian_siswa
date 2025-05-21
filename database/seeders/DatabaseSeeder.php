@@ -138,6 +138,7 @@ class DatabaseSeeder extends Seeder
             MapelSeeder::class,
             NilaiSeeder::class,
             GuruMapelSeeder::class,
+            GuruPaiSeeder::class,
         ]);
     
     }

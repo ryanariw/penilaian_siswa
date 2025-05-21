@@ -42,11 +42,12 @@
                 <td>{{ $n->nilai_akhir }}</td>
                 <td>
                     <a href="{{ route('penilaian.nilaiedit', $n->id) }}" class="btn btn-warning btn-sm me-1">Edit</a>
-                    <form action="{{ route('penilaian.destroy', $n->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Yakin ingin menghapus nilai ini?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                    </form>
+                   <form action="{{ route('penilaian.nilaidestroy', $n->id) }}" method="POST">
+                      @csrf
+                      @method('DELETE')
+                      <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                  </form>
+
                 </td>
             </tr>
         @endforeach
@@ -74,7 +75,8 @@
  <!-- Modal Tambah Nilai -->
 <div class="modal fade" id="tambahGuruModal" tabindex="-1" aria-labelledby="tambahGuruModalLabel" aria-hidden="true">
   <div class="modal-dialog">
-    <form action="{{ route('nilai.store') }}" method="POST">
+    <form action="{{ route('penilaian.nilaistore') }}" method="POST">
+
       @csrf
       <div class="modal-content">
         <div class="modal-header">

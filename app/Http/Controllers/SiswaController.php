@@ -13,11 +13,13 @@ use Illuminate\Support\Facades\Auth;
 class SiswaController extends Controller
 {
     public function index()
+
     {
-        $siswa = Siswa::with('kelas')->get();
+        $siswa = Siswa::with('kelas')->paginate(5); // Tambahkan paginate(10)
         $kelas = Kelas::all();
         return view('siswa.index', compact('siswa', 'kelas'));
     }
+
 
     public function store(Request $request)
 {

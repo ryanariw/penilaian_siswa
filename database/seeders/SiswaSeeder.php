@@ -13,16 +13,21 @@ class SiswaSeeder extends Seeder
     {
         $faker = Faker::create();
 
+        // Ambil semua id dari users dan kelas
+        $userIds = DB::table('users')->pluck('id')->toArray();
+        $kelasIds = DB::table('kelas')->pluck('id')->toArray();
+        $offset = 1000; // Deklarasi offset
+
         $data = [];
 
         for ($i = 1; $i <= 20; $i++) {
             $data[] = [
-                'kelas_id' => $faker->numberBetween(1, 5), // sesuaikan jumlah kelas yang ada
+                'user_id' => $faker->randomElement($userIds),
+                'kelas_id' => $faker->randomElement($kelasIds),
                 'nama' => $faker->name(),
-                'nis' => 'NIS' . str_pad($i, 4, '0', STR_PAD_LEFT), // NIS unik misal NIS0001
+                'nis' => 'NIS' . str_pad($i + $offset, 4, '0', STR_PAD_LEFT),
                 'alamat' => $faker->address(),
-                'jenis kelamin' => $faker->randomElement(['L', 'P']),
-                 'user_id' => 18,
+                'jenis_kelamin' => $faker->randomElement(['L', 'P']),
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ];

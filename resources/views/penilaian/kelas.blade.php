@@ -34,12 +34,14 @@
                             <td>{{ $kelas->nama_kelas }}</td>
                             <td>{{ $kelas->guru->nama ?? 'Belum Ditentukan' }}</td>
                             <td>
-                            <a href="{{ route('penilaian.kelasedit', $kelas->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                            <form action="{{ route('kelas.destroy', $kelas->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Yakin ingin menghapus kelas ini?')">
+                           <a href="{{ route('penilaian.kelas.edit', $kelas->id) }}" class="btn btn-warning btn-sm">Edit</a>
+
+                            <form action="{{ route('penilaian.kelas.destroy', $kelas->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus kelas ini?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                <button class="btn btn-danger btn-sm">Hapus</button>
                             </form>
+
                         </td> 
                         </tr>
                     @empty
@@ -55,7 +57,8 @@
     <!-- Modal -->
     <div class="modal fade" id="tambahKelasModal" tabindex="-1" aria-labelledby="tambahKelasModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form action="{{ route('kelas.store') }}" method="POST">
+       <form action="{{ route('penilaian.kelas.store') }}" method="POST">
+
             @csrf
             <div class="modal-content">
             <div class="modal-header">

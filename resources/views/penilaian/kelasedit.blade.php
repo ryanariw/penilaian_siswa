@@ -9,7 +9,7 @@
                     <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Edit Kelas</h4>
                 </div>
                 <div class="card-body p-4">
-                    <form action="{{ route('kelas.update', $kelas->id) }}" method="POST">
+                  <form action="{{ route('penilaian.kelas.update', $kelas->id) }}" method="POST">
                         @csrf
                         @method('PUT')
 
@@ -42,7 +42,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a href="{{ route('penilaian.kelas') }}" class="btn btn-outline-secondary">
+                           <a href="{{ route('penilaian.kelas.index') }}" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-left"></i> Kembali
                             </a>
                             <button type="submit" class="btn btn-success">

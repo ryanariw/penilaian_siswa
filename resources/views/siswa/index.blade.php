@@ -97,6 +97,17 @@
             @endforelse
         </tbody>
     </table>
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between mx-3">
+        <div>
+            Menampilkan {{ $siswa->firstItem() }} - {{ $siswa->lastItem() }} dari {{ $siswa->total() }} data
+        </div>
+        <div>
+            {{ $siswa->links() }}
+        </div>
+
+</div>
+
     <!-- End Active Table -->
 </div>
 

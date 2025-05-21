@@ -48,10 +48,9 @@
             </a>
           </li>
           <li>
-            <a href="{{route ('penilaian.kelas')}}">
+              <a href="{{ route('penilaian.kelas.index') }}">
               <i class="bi bi-circle"></i><span>Kelas</span>
-            </a>
-          </li>
+              </a>
           <li>
             <a href="{{route ('penilaian.nilai') }}">
               <i class="bi bi-circle"></i><span>Nilai</span>

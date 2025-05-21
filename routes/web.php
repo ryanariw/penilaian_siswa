@@ -9,70 +9,78 @@ use App\Http\Controllers\KelasController;
 use App\Http\Controllers\KepsekController;
 use App\Http\Controllers\MapelController;
 
-Route::get('/', function () {
-    return view('auth.login');
-});
+// Halaman utama
+Route::get('/', fn() => view('auth.login'));
 
-Route::get('/home', [AuthController::class, 'home']) ->name('dasboard.home');
-
-
-
-// Public routes
-
+// Auth (login & register)
+Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/postlogin', [AuthController::class, 'login']);
     Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
+});
 
-// Authenticated routes
+// Logout (hanya bisa jika sudah login)
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    
-    // Route::get('/dashboard', function () {
-    //     return view('guru.index');
-    // })->name('dashboard');
+// Dashboard
+Route::get('/home', [AuthController::class, 'home'])->name('dasboard.home')->middleware('auth');
 
-    Route::get('/guru', [GuruController::class, 'index'])->name('guru.index');
-    Route::post('/guru', [GuruController::class, 'store'])->name('guru.store');
-    Route::put('/guru/{guru}', [GuruController::class, 'update'])->name('guru.update');
-    Route::delete('/guru/{guru}', [GuruController::class, 'destroy'])->name('guru.destroy');
-    Route::get('/guru/export', [GuruController::class, 'export'])->name('guru.export')->middleware('auth');
+// Route yang hanya bisa diakses jika sudah login
+Route::middleware('auth')->group(function () {
 
+    // GURU
+    Route::prefix('guru')->name('guru.')->group(function () {
+        Route::get('/', [GuruController::class, 'index'])->name('index');
+        Route::post('/', [GuruController::class, 'store'])->name('store');
+        Route::put('/{guru}', [GuruController::class, 'update'])->name('update');
+        Route::delete('/{guru}', [GuruController::class, 'destroy'])->name('destroy');
+        Route::get('/export', [GuruController::class, 'export'])->name('export');
+    });
 
-    Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa.index');
-    Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store');
-Route::get('/siswa/profile/{id}', [SiswaController::class, 'profile'])->name('siswa.profile');
-    Route::put('/siswa/{siswa}', [SiswaController::class, 'update'])->name('siswa.update');
-    Route::delete('/siswa/{siswa}', [SiswaController::class, 'destroy'])->name('siswa.destroy');
-    // CSV import routes
-    Route::post('siswa/import-csv', [SiswaController::class, 'importCSV'])->name('siswa.import-csv');
-    Route::get('siswa/export-csv-template', [SiswaController::class, 'exportCSVTemplate'])->name('siswa.export-csv-template');
+    // SISWA
+    Route::prefix('siswa')->name('siswa.')->group(function () {
+        Route::get('/', [SiswaController::class, 'index'])->name('index');
+        Route::post('/', [SiswaController::class, 'store'])->name('store');
+        Route::get('/profile/{id}', [SiswaController::class, 'profile'])->name('profile');
+        Route::put('/{siswa}', [SiswaController::class, 'update'])->name('update');
+        Route::delete('/{siswa}', [SiswaController::class, 'destroy'])->name('destroy');
+        Route::post('/import-csv', [SiswaController::class, 'importCSV'])->name('import-csv');
+        Route::get('/export-csv-template', [SiswaController::class, 'exportCSVTemplate'])->name('export-csv-template');
+    });
 
-    
-    Route::get('/nilai', [NilaiController::class, 'index'])->name('penilaian.nilai');
-    Route::get('/nilai/create', [NilaiController::class, 'create'])->name('nilai.create');
-    Route::post('/nilai', [NilaiController::class, 'store'])->name('nilai.store');
-    Route::get('/nilai/{id}/edit', [NilaiController::class, 'edit'])->name('penilaian.nilaiedit');
-    Route::put('/nilai/{id}', [NilaiController::class, 'update']);
-    Route::delete('/nilai/{nilai}', [NilaiController::class, 'destroy'])->name('penilaian.destroy');
-    Route::get('/nilai/export', [NilaiController::class, 'exportExcel'])->name('penilaian.export');
-
-
-    Route::get('/kelas', [KelasController::class, 'index'])->name('penilaian.kelas');
+   Route::prefix('penilaian')->name('penilaian.')->group(function () {
+    // NILAI
+    Route::get('/nilai', [NilaiController::class, 'index'])->name('nilai');
+    Route::get('/nilai/create', [NilaiController::class, 'create'])->name('nilaicreate');
+    Route::post('/nilai', [NilaiController::class, 'store'])->name('nilaistore');
+    Route::get('/nilai/{id}/edit', [NilaiController::class, 'edit'])->name('nilaiedit');
+    Route::put('/nilai/{id}', [NilaiController::class, 'update'])->name('nilaiupdate');
+    Route::delete('/nilai/{id}', [NilaiController::class, 'destroy'])->name('destroy');
+    Route::get('/nilai/export', [NilaiController::class, 'exportExcel'])->name('export');
+    // KELAS
+    Route::get('/kelas', [KelasController::class, 'index'])->name('kelas.index');
     Route::post('/kelas', [KelasController::class, 'store'])->name('kelas.store');
-    Route::get('/kelas/{kelas}/edit', [KelasController::class, 'edit'])->name('penilaian.kelasedit');
-    Route::put('/kelas/{kelas}', [KelasController::class, 'update'])->name('kelas.update');
-    Route::delete('/kelas/{kelas}', [KelasController::class, 'destroy'])->name('kelas.destroy');
+    Route::get('/kelas/{id}/edit', [KelasController::class, 'edit'])->name('kelas.edit');
+    Route::put('/kelas/{id}', [KelasController::class, 'update'])->name('kelas.update');
+    Route::delete('/kelas/{id}', [KelasController::class, 'destroy'])->name('kelas.destroy');
+
+    // MAPEL
+    Route::delete('mapel/{id}', [MapelController::class, 'destroy'])->name('mapeldestroy');
+    Route::post('mapel', [MapelController::class, 'store'])->name('mapelstore');
+    Route::put('mapel/{id}', [MapelController::class, 'update'])->name('mapelupdate');
+    Route::get('mapel', [MapelController::class, 'index'])->name('mapel');
+});
+ // KEPSEK
+    Route::prefix('kepsek')->name('kepsek.')->group(function () {
+        Route::get('/', [KepsekController::class, 'index'])->name('index');
+        Route::post('/', [KepsekController::class, 'store'])->name('store');
+        Route::put('/{id}', [KepsekController::class, 'update'])->name('update');
+        Route::delete('/{user}', [KepsekController::class, 'destroy'])->name('destroy');
+    });
 
 
-    Route::get('/mapel/store', [MapelController::class, 'store'])->name('mapel.store');
-    Route::get('/mapel', [MapelController::class, 'index'])->name('penilaian.mapel');
-    Route::get('/mapel/{id}/edit', [MapelController::class, 'edit'])->name('mapel.edit');
-    Route::put('/mapel/{id}', [MapelController::class, 'update'])->name('mapel.update');
-    Route::delete('/mapel/{id}', [MapelController::class, 'destroy'])->name('mapel.destroy');
 
+});
 
-Route::get('/kepsek', [KepsekController::class, 'index'])->name('kepsek.index');
-Route::post('/kepsek', [KepsekController::class, 'store'])->name('kepsek.store');
-Route::put('/kepsek/{id}', [KepsekController::class, 'update'])->name('kepsek.update');
-Route::delete('/kepsek/{user}', [KepsekController::class, 'destroy'])->name('kepsek.destroy');
+   
